@@ -11,47 +11,41 @@ features = model_data["features"]
 cols_to_scale = model_data["cols_to_scale"]
 
 
-def prepare_df(age, income, loan_amount, loan_tenure_months,
-               avg_dpd_per_delinquency, credit_utilization_ratio,
-               employment_years, residence_type, loan_purpose, loan_type):
-
+def prepare_df(
+    age, income, loan_amount, loan_tenure_months,
+    avg_dpd_per_delinquency, credit_utilization_ratio,
+    employment_years, residence_type, loan_purpose, loan_type
+):
+    # Create base input
     input_data = {
-        "age": age,
-        "loan_tenure_months": loan_tenure_months,
-        "number_of_open_accounts": 1,
-        "credit_utilization_ratio": credit_utilization_ratio,
-        "loan_to_income": loan_amount / income if income > 0 else 0,
-        "delinquency_ratio": 0.1,
-        "avg_dpd_per_delinquency": avg_dpd_per_delinquency,
-
-        "residence_type_Owned": int(residence_type == "Owned"),
-        "residence_type_Rented": int(residence_type == "Rented"),
-
-        "loan_purpose_Education": int(loan_purpose == "Education"),
-        "loan_purpose_Home": int(loan_purpose == "Home"),
-        "loan_purpose_Personal": int(loan_purpose == "Personal"),
-
-        "loan_type_Unsecured": int(loan_type == "Unsecured"),
-
-        "number_of_dependents": 1,
-        "years_at_current_address": 1,
-        "zipcode": 1,
-        "sanction_amount": loan_amount,
-        "processing_fee": 1,
-        "gst": 1,
-        "net_disbursement": loan_amount,
-        "principal_outstanding": 1,
-        "bank_balance_at_application": 1,
-        "number_of_closed_accounts": 1,
-        "enquiry_count": 1
+        'age': age,
+        'loan_tenure_months': loan_tenure_months,
+        'number_of_open_accounts': 2,
+        'credit_utilization_ratio': credit_utilization_ratio,
+        'loan_to_income': loan_amount / income if income > 0 else 0,
+        'delinquency_ratio': avg_dpd_per_delinquency,
+        'avg_dpd_per_delinquency': avg_dpd_per_delinquency,
+        'employment_years': employment_years,
+        'residence_type_Owned': 1 if residence_type == 'Owned' else 0,
+        'residence_type_Rented': 1 if residence_type == 'Rented' else 0,
+        'loan_purpose_Education': 1 if loan_purpose == 'Education' else 0,
+        'loan_purpose_Home': 1 if loan_purpose == 'Home' else 0,
+        'loan_purpose_Personal': 1 if loan_purpose == 'Personal' else 0,
+        'loan_type_Unsecured': 1 if loan_type == 'Unsecured' else 0,
     }
 
-    df = pd.DataFrame([input_data])
+    # 🔑 Create df with ALL training features
+    df = pd.DataFrame(columns=features)
+    df.loc[0] = 0
+    for key, value in input_data.items():
+        if key in df.columns:
+            df.at[0, key] = value
 
+    # Scale numeric columns
     df[cols_to_scale] = scaler.transform(df[cols_to_scale])
-    df = df[features]
 
     return df
+
 
 
 def calculate_credit_score(input_df, base_score=300, scale_length=600):
