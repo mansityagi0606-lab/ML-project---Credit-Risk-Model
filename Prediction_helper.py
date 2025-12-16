@@ -50,8 +50,14 @@ def prepare_df(
 
     # ✅ Correct column order
     df = df[features]
+    
+    print("DF COLUMNS:", df.columns.tolist())
+    print("FEATURES:", features)
+    print("COLS TO SCALE:", cols_to_scale)
 
-    # ✅ Safe scaling
+    missing = list(set(cols_to_scale) - set(df.columns))
+    print("MISSING COLS:", missing)
+
     df[cols_to_scale] = scaler.transform(df[cols_to_scale])
 
     return df
