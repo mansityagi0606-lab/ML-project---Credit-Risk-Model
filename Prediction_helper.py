@@ -38,13 +38,20 @@ def prepare_df(
 
     df = pd.DataFrame([data])
 
-    # 🔥 CRITICAL FIX
+    # ✅ Ensure ALL model features exist
     for col in features:
         if col not in df.columns:
             df[col] = 0
 
+    # ✅ Ensure ALL scaled columns exist
+    for col in cols_to_scale:
+        if col not in df.columns:
+            df[col] = 0
+
+    # ✅ Correct column order
     df = df[features]
 
+    # ✅ Safe scaling
     df[cols_to_scale] = scaler.transform(df[cols_to_scale])
 
     return df
