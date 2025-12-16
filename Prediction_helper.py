@@ -16,35 +16,39 @@ def prepare_df(
     avg_dpd_per_delinquency, credit_utilization_ratio,
     employment_years, residence_type, loan_purpose, loan_type
 ):
-    # Create base input
-    input_data = {
+    data = {
         'age': age,
+        'income': income,
+        'loan_amount': loan_amount,
         'loan_tenure_months': loan_tenure_months,
-        'number_of_open_accounts': 2,
         'credit_utilization_ratio': credit_utilization_ratio,
-        'loan_to_income': loan_amount / income if income > 0 else 0,
-        'delinquency_ratio': avg_dpd_per_delinquency,
         'avg_dpd_per_delinquency': avg_dpd_per_delinquency,
+        'loan_to_income': loan_amount / income if income > 0 else 0,
         'employment_years': employment_years,
+
         'residence_type_Owned': 1 if residence_type == 'Owned' else 0,
         'residence_type_Rented': 1 if residence_type == 'Rented' else 0,
+
         'loan_purpose_Education': 1 if loan_purpose == 'Education' else 0,
         'loan_purpose_Home': 1 if loan_purpose == 'Home' else 0,
         'loan_purpose_Personal': 1 if loan_purpose == 'Personal' else 0,
+
         'loan_type_Unsecured': 1 if loan_type == 'Unsecured' else 0,
     }
 
-    # 🔑 Create df with ALL training features
-    df = pd.DataFrame(columns=features)
-    df.loc[0] = 0
-    for key, value in input_data.items():
-        if key in df.columns:
-            df.at[0, key] = value
+    df = pd.DataFrame([data])
 
-    # Scale numeric columns
+    # 🔥 CRITICAL FIX
+    for col in features:
+        if col not in df.columns:
+            df[col] = 0
+
+    df = df[features]
+
     df[cols_to_scale] = scaler.transform(df[cols_to_scale])
 
     return df
+
 
 
 
